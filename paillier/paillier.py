@@ -33,7 +33,6 @@ def modpow(base, exponent, modulus):
     return result
 
 class PrivateKey(object):
-
     def __init__(self, p, q, n):
         self.l = (p-1) * (q-1)
         self.m = invmod(self.l, n)
@@ -67,12 +66,20 @@ def encrypt(pub, plain):
         if r > 0 and r < pub.n:
             break
     x = pow(r, pub.n, pub.n_sq)
+# if the plaintext is a negative number, loop around n^2
+    if plain < 0:
+      plain = plain + pub.n
     cipher = (pow(pub.g, plain, pub.n_sq) * x) % pub.n_sq
     return cipher
 
 def e_add(pub, a, b):
-    """Add one encrypted integer to another"""
+    """ Return the encryption under pub of the sum of the
+    ciphertexts a and b"""
     return a * b % pub.n_sq
+
+def e_sub(pub, a, b):
+    """ Returns encryption of a-b """
+    return e_add(pub, a, e_mul_const(pub, b, -1))
 
 def e_add_const(pub, a, n):
     """Add constant n to an encrypted integer"""
@@ -80,10 +87,19 @@ def e_add_const(pub, a, n):
 
 def e_mul_const(pub, a, n):
     """Multiplies an ancrypted integer by a constant"""
+    if n < 0:
+      tmp = invmod(a, pub.n_sq)
+      if n == -1:
+        return tmp
+      else:
+        return modpow(tmp, -n, pub.n_sq)
     return modpow(a, n, pub.n_sq)
 
 def decrypt(priv, pub, cipher):
+    """If the number is too large (>(n/2)), assume it is negative and substract pub.n"""
     x = pow(cipher, priv.l, pub.n_sq) - 1
     plain = ((x // pub.n) * priv.m) % pub.n
+    if plain > pub.n/2:
+      plain -= pub.n
     return plain
 

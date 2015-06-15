@@ -1,8 +1,8 @@
-Pure Python Paillier Homomorphic Cryptosystem
-=============================================
+Pure Python Paillier Homomorphic Cryptosystem (with negative numbers)
+====================================================================
 
 This is a very basic pure Python implementation of the Paillier
-Homomorphic Cryptosystem.
+Homomorphic Cryptosystem. 
 
 Homomorphic Cryptosystems
 -------------------------
